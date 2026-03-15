@@ -1,0 +1,11 @@
+packages:
+  - "packages/*"
+  - "services/*"
+allowBuilds:
+  '@514labs/kafka-javascript': true
+  '@prisma/engines': true
+  '@swc/core': false
+  esbuild: true
+  prisma: true
+  protobufjs: false
+  sharp: false

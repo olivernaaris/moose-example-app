@@ -1,0 +1,54 @@
+{
+  "name": "@moose-example/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "prisma"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf node_modules dist",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.5.0",
+    "uuidv7": "^1.1.0"
+  },
+  "peerDependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "pg": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@prisma/adapter-pg": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8",
+    "pg": "^8.16.3",
+    "prisma": "^7.5.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,33 @@
+language = "Typescript"
+
+[typescript_config]
+package_manager = "pnpm"
+
+[redpanda_config]
+broker = "localhost:19092"
+message_timeout_ms = 10000
+retention_ms = 2592000000
+replication_factor = 1
+
+[clickhouse_config]
+db_name = "default"
+user = "default"
+password = "clickhouse"
+use_ssl = false
+host = "localhost"
+host_port = 18123
+native_port = 19000
+
+[http_server_config]
+host = "0.0.0.0"
+port = 4000
+management_port = 4001
+
+[telemetry]
+enabled = false
+
+[features]
+streaming_engine = true
+data_model_v2 = true
+apis = true
+olap = true
