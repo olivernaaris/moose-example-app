@@ -1,11 +1,7 @@
-import { Key, IngestPipeline } from "@514labs/moose-lib";
+import { IngestPipeline } from "@514labs/moose-lib";
+import { ProductView } from "@moose-example/analytics-client";
 
-export interface ProductView {
-  viewId: Key<string>;
-  productId: string;
-  userId: string;
-  timestamp: Date;
-}
+export type { ProductView };
 
 export const ProductViewPipeline = new IngestPipeline<ProductView>("ProductView", {
   table: true,

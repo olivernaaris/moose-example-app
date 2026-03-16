@@ -1,11 +1,13 @@
+import { Key } from "@514labs/moose-lib";
+
 export interface OrderEvent {
-  eventId: string;
+  eventId: Key<string>;
   orderId: string;
   userId: string;
   action: string; // 'created' | 'updated' | 'cancelled' | 'shipped' | 'delivered'
   totalAmount: number;
   itemCount: number;
-  timestamp: string; // DateTime64(3)
+  timestamp: Date;
 }
 
 export const ORDER_EVENTS_TABLE = "OrderEvent_0_0";

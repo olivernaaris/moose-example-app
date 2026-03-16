@@ -17,9 +17,12 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
     "clean": "rm -rf node_modules dist"
   },
   "dependencies": {
+    "@514labs/moose-lib": "0.6.439",
     "@clickhouse/client": "^1.8.1"
   },
   "devDependencies": {

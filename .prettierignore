@@ -1,0 +1,8 @@
+node_modules
+dist
+.next
+.moose
+.turbo
+coverage
+pnpm-lock.yaml
+prisma/generated

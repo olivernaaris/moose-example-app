@@ -12,15 +12,28 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "test": "turbo run test",
+    "check": "turbo run check",
     "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "ci": "turbo run lint check test build --force",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "docker:analytics": "bash scripts/docker-prep.sh && pnpm --filter moose-example-analytics exec moose build --docker",
+    "db:generate": "pnpm --filter @moose-example/database db:generate",
     "db:push": "pnpm --filter @moose-example/database db:push",
     "db:migrate": "pnpm --filter @moose-example/database db:migrate",
     "db:studio": "pnpm --filter @moose-example/database db:studio"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
     "turbo": "^2.8.16",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.57.0",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "prisma": "^7.5.0"

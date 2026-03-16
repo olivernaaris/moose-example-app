@@ -1,5 +1,9 @@
 language = "Typescript"
 
+[docker_config]
+custom_dockerfile = true
+dockerfile_path = "./Dockerfile"
+
 [typescript_config]
 package_manager = "pnpm"
 
@@ -23,8 +27,18 @@ host = "0.0.0.0"
 port = 4000
 management_port = 5001
 
+[redis_config]
+url = "redis://127.0.0.1:6379"
+key_prefix = "MS"
+
+[git_config]
+main_branch_name = "main"
+
 [telemetry]
 enabled = false
+
+[state_config]
+storage = "redis"
 
 [features]
 streaming_engine = true

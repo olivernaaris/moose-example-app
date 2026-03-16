@@ -1,14 +1,7 @@
-import { Key, IngestPipeline } from "@514labs/moose-lib";
+import { IngestPipeline } from "@514labs/moose-lib";
+import { OrderEvent } from "@moose-example/analytics-client";
 
-export interface OrderEvent {
-  eventId: Key<string>;
-  orderId: string;
-  userId: string;
-  action: string;
-  totalAmount: number;
-  itemCount: number;
-  timestamp: Date;
-}
+export type { OrderEvent };
 
 export const OrderEventPipeline = new IngestPipeline<OrderEvent>("OrderEvent", {
   table: true,
