@@ -1,5 +1,9 @@
 language = "Typescript"
 
+[docker_config]
+custom_dockerfile = true
+dockerfile_path = "./Dockerfile"
+
 [typescript_config]
 package_manager = "pnpm"
 

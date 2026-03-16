@@ -1,7 +1,7 @@
 {
   "name": "moose-example-app",
   "version": "0.1.0",
-  "description": "Example monorepo demonstrating Segmentflow architecture patterns",
+  "description": "Example monorepo with MooseStack",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.32.1",
@@ -19,7 +19,6 @@
     "format:check": "prettier --check .",
     "ci": "turbo run lint check test build --force",
     "clean": "turbo run clean && rm -rf node_modules .turbo",
-    "docker:analytics": "bash scripts/docker-prep.sh && pnpm --filter moose-example-analytics exec moose build --docker",
     "db:generate": "pnpm --filter @moose-example/database db:generate",
     "db:push": "pnpm --filter @moose-example/database db:push",
     "db:migrate": "pnpm --filter @moose-example/database db:migrate",
@@ -30,7 +29,7 @@
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.8.1",
-    "turbo": "^2.8.16",
+    "turbo": "^2.8.17",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.57.0",
     "vitest": "^4.1.0"

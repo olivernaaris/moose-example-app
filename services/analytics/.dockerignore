@@ -1,6 +1,8 @@
 node_modules/
 .moose/
+!.moose/packager/
 .turbo/
+.docker-deps/
 .env
 .env.*
 !.env.example

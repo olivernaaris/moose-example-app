@@ -7,10 +7,10 @@
     "node": ">=24.0.0"
   },
   "scripts": {
+    "moose": "moose-cli",
     "dev": "moose-cli dev",
     "dev:no-infra": "moose dev --no-infra",
-    "build": "tsc --noEmit",
-    "moose:build": "moose-cli build",
+    "build": "moose-cli build --docker",
     "check": "moose-cli check",
     "lint": "eslint .",
     "test": "vitest run"

@@ -1,33 +1,31 @@
 
-# Stage 1: Dependency resolution
-# Reconstructs a minimal monorepo structure from .docker-deps/ (staged by
-# scripts/docker-prep.sh) so pnpm can resolve workspace:* dependencies.
-FROM node:24-bookworm-slim AS deps
+# Stage 1: Full monorepo context for dependency resolution
+FROM node:24-bookworm-slim AS monorepo-base
 
-RUN npm config set update-notifier false
-RUN npm install -g pnpm@latest
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+ENV COREPACK_ENABLE_STRICT=1
 
-WORKDIR /workspace
+RUN npm config set update-notifier false && \
+    corepack enable && \
+    corepack prepare pnpm@10.32.1 --activate
 
-# Monorepo scaffolding for pnpm workspace resolution
-COPY .docker-deps/pnpm-workspace.yaml ./
-COPY .docker-deps/root-package.json ./package.json
-COPY .docker-deps/.npmrc ./
-COPY .docker-deps/pnpm-lock.yaml ./
+# Set working directory to monorepo root
+WORKDIR /monorepo
 
-# Pre-built workspace packages (dist/ only — no source needed)
-COPY .docker-deps/packages ./packages
+# Copy workspace configuration files
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY .npmr[c] ./
+COPY pnpm-lock.yaml ./
 
-# The analytics service package.json (contains workspace:* deps)
-COPY package.json ./services/analytics/package.json
+# Copy workspace package directories (will be replaced with actual patterns)
+COPY packages ./packages
+COPY services ./services
 
-# Install all dependencies using the monorepo lockfile
+# Install all dependencies from monorepo root
 RUN pnpm install --frozen-lockfile
-
-# Deploy the analytics service into a flat directory with all its dependencies
-# (including devDeps needed for moose check / moose-tspc build steps)
-RUN pnpm --filter moose-example-analytics deploy /deployed
-
 
 # Stage 2: Production image
 FROM node:24-bookworm-slim
@@ -35,8 +33,13 @@ FROM node:24-bookworm-slim
 # This is to remove the notice to update NPM that will break the output from STDOUT
 RUN npm config set update-notifier false
 
-# Install alternative package managers globally
-RUN npm install -g pnpm@latest
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+ENV COREPACK_ENABLE_STRICT=1
+
+RUN corepack enable && \
+    corepack prepare pnpm@10.32.1 --activate
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -85,24 +88,70 @@ WORKDIR /application
 # Ensure application directory is owned by moose user
 RUN chown -R moose:moose /application
 
-# Copy application files from build context
-COPY --chown=moose:moose app ./app
-COPY --chown=moose:moose package.json ./package.json
-COPY --chown=moose:moose tsconfig.json ./tsconfig.json
+# Placeholder for the language specific copy package file copy
 
-# Copy resolved node_modules from deps stage (pnpm deploy flattens all deps)
-COPY --from=deps --chown=moose:moose /deployed/node_modules ./node_modules
+# Copy application files from monorepo stage
+COPY --from=monorepo-base --chown=moose:moose /monorepo/services/analytics/app ./app
+COPY --from=monorepo-base --chown=moose:moose /monorepo/services/analytics/package.json ./package.json
+COPY --from=monorepo-base --chown=moose:moose /monorepo/services/analytics/tsconfig.json ./tsconfig.json
+
+# Use pnpm deploy from workspace context to create clean production dependencies
+USER root:root
+WORKDIR /temp-monorepo
+COPY --from=monorepo-base /monorepo/pnpm-workspace.yaml ./
+COPY --from=monorepo-base /monorepo/pnpm-lock.yaml ./
+COPY --from=monorepo-base /monorepo/services/analytics ./services/analytics
+# Copy all workspace directories that exist
+COPY --from=monorepo-base /monorepo/packages ./packages
+COPY --from=monorepo-base /monorepo/services ./services
+# Use package manager to install only production dependencies
+
+# Use package manager to install only production dependencies
+RUN pnpm --filter "./services/analytics" deploy /temp-deploy
+
+# Fix: When using pnpm deploy --legacy, native bindings aren't copied, so rebuild them from source
+# Generic solution: Find and rebuild all packages with native bindings (those with binding.gyp)
+RUN echo "=== Rebuilding native modules ===" && \
+    cd /temp-deploy && \
+    found_native=0 && \
+    for dir in $(find node_modules -name "binding.gyp" -type f 2>/dev/null | xargs -r dirname); do \
+        found_native=1; \
+        package_name=$(basename $(dirname "$dir")); \
+        echo "Found native module: $package_name in $dir"; \
+        if (cd "$dir" && npm rebuild 2>&1); then \
+            echo "✓ Successfully rebuilt $package_name"; \
+        else \
+            echo "⚠ Warning: Failed to rebuild $package_name (may be optional)"; \
+        fi; \
+    done && \
+    if [ $found_native -eq 0 ]; then \
+        echo "No native modules found (this is normal if your deps don't have native bindings)"; \
+    fi && \
+    echo "=== Native modules rebuild complete ==="
+RUN cp -r /temp-deploy/node_modules /application/node_modules
+RUN chown -R moose:moose /application/node_modules
+
+# No TypeScript path transformations needed
+USER root:root
+# Clean up temporary directories
+RUN rm -rf /temp-deploy /temp-monorepo
+
+RUN if [ -d "/application/node_modules/@514labs/moose-lib/dist/" ]; then ls -la /application/node_modules/@514labs/moose-lib/dist/; fi
+USER moose:moose
+WORKDIR /application
 
 # https://stackoverflow.com/questions/70096208/dockerfile-copy-folder-if-it-exists-conditional-copy/70096420#70096420
 COPY --chown=moose:moose ./project.tom[l] ./project.toml
 COPY --chown=moose:moose ./moose.config.tom[l] ./moose.config.toml
 COPY --chown=moose:moose ./versions .moose/versions
 
-RUN if [ -d "/application/node_modules/@514labs/moose-lib/dist/" ]; then ls -la /application/node_modules/@514labs/moose-lib/dist/; fi
 
+# Placeholder for the language specific install command
+# Dependencies copied from monorepo build stage
+
+# Placeholder for TypeScript pre-compilation step (empty for Python)
 # Run TypeScript type checking
 # Run typecheck before we compile since we skip typecheck there
-USER moose:moose
 RUN npx moose check
 
 # Pre-compile TypeScript with moose plugins (typia, compilerPlugin)

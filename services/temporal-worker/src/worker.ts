@@ -13,7 +13,7 @@ const TASK_QUEUE = "example-task-queue";
 async function run(): Promise<void> {
   logger.info("Bundling workflow code...");
   const workflowBundle = await bundleWorkflowCode({
-    workflowsPath: new URL("./workflows.ts", import.meta.url).pathname,
+    workflowsPath: new URL("./workflows.js", import.meta.url).pathname,
   });
 
   logger.info({ address: config.temporalAddress }, "Connecting to Temporal server...");
