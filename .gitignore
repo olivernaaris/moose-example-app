@@ -18,6 +18,9 @@ build/
 # Prisma
 prisma/generated/
 
+# Moose build artifacts
+.moose/
+
 # OS
 .DS_Store
 

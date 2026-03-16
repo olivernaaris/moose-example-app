@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "node --env-file=.env --import tsx src/server.ts",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed": "node --env-file=.env --import tsx prisma/seed.ts",
+    "db:reset": "node --env-file=.env --import tsx prisma/reset.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.0.0",
@@ -22,6 +24,7 @@
     "fastify-plugin": "^5.0.0",
     "fastify-type-provider-zod": "^6.1.0",
     "pg": "^8.16.3",
+    "pino": "^9.14.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

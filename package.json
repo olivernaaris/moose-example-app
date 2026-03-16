@@ -26,6 +26,10 @@
     "prisma": "^7.5.0"
   },
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "@confluentinc/kafka-javascript",
+      "@514labs/kafka-javascript"
+    ],
     "overrides": {
       "@types/pg": "^8.18.0"
     }
