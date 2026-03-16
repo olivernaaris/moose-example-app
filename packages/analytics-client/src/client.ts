@@ -1,15 +1,28 @@
-import { createClient, type ClickHouseClient } from "@clickhouse/client";
+import { getMooseUtils, type MooseClient } from "@514labs/moose-lib";
 
-let client: ClickHouseClient | null = null;
+let clientPromise: Promise<MooseClient> | null = null;
 
-export function getClickHouseClient(): ClickHouseClient {
-  if (!client) {
-    client = createClient({
-      url: process.env.CLICKHOUSE_URL ?? "http://localhost:18123",
-      username: process.env.CLICKHOUSE_USER ?? "default",
-      password: process.env.CLICKHOUSE_PASSWORD ?? "",
-      database: process.env.CLICKHOUSE_DATABASE ?? "local",
-    });
+/**
+ * Returns a MooseClient singleton for type-safe ClickHouse queries.
+ *
+ * Uses the MooseStack runtime to resolve connection configuration
+ * automatically. The client is lazily initialized on first call
+ * and cached for subsequent calls.
+ *
+ * @example
+ * ```typescript
+ * import { getMooseClient } from "@moose-example/analytics-client";
+ * import { sql } from "@514labs/moose-lib";
+ *
+ * const client = await getMooseClient();
+ * const result = await client.query.execute(
+ *   sql.statement`SELECT * FROM ${ORDER_EVENTS_TABLE} LIMIT 10`
+ * );
+ * ```
+ */
+export async function getMooseClient(): Promise<MooseClient> {
+  if (!clientPromise) {
+    clientPromise = getMooseUtils().then(({ client }) => client);
   }
-  return client;
+  return clientPromise;
 }

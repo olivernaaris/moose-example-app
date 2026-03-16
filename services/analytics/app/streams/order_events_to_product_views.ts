@@ -7,9 +7,9 @@ OrderEventPipeline.stream!.addTransform(
   (event: OrderEvent): ProductView | null => {
     if (event.action === "viewed_product") {
       return {
-        viewId: event.eventId,
-        productId: event.orderId,
-        userId: event.userId,
+        view_id: event.event_id,
+        product_id: event.order_id,
+        user_id: event.user_id,
         timestamp: event.timestamp,
       };
     }

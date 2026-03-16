@@ -1,4 +1,4 @@
-export { getClickHouseClient } from "./client.js";
+export { getMooseClient } from "./client.js";
 
 export type { OrderEvent } from "./models/index.js";
 export { ORDER_EVENTS_TABLE, ORDER_EVENTS_COLUMNS } from "./models/index.js";

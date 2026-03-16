@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@514labs/moose-lib": "0.6.439",
-    "@clickhouse/client": "^1.8.1"
+    "typia": "^11.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
