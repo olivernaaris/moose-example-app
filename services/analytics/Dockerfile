@@ -2,14 +2,11 @@
 # Stage 1: Full monorepo context for dependency resolution
 FROM node:24-bookworm-slim AS monorepo-base
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-ENV COREPACK_ENABLE_STRICT=1
+# This is to remove the notice to update NPM that will break the output from STDOUT
+RUN npm config set update-notifier false
 
-RUN npm config set update-notifier false && \
-    corepack enable && \
-    corepack prepare pnpm@10.32.1 --activate
+# Install alternative package managers globally
+RUN npm install -g pnpm@latest
 
 # Set working directory to monorepo root
 WORKDIR /monorepo
@@ -33,13 +30,8 @@ FROM node:24-bookworm-slim
 # This is to remove the notice to update NPM that will break the output from STDOUT
 RUN npm config set update-notifier false
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
-ENV COREPACK_ENABLE_STRICT=1
-
-RUN corepack enable && \
-    corepack prepare pnpm@10.32.1 --activate
+# Install alternative package managers globally
+RUN npm install -g pnpm@latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -100,6 +92,7 @@ USER root:root
 WORKDIR /temp-monorepo
 COPY --from=monorepo-base /monorepo/pnpm-workspace.yaml ./
 COPY --from=monorepo-base /monorepo/pnpm-lock.yaml ./
+COPY --from=monorepo-base /monorepo/.npmr[c] ./
 COPY --from=monorepo-base /monorepo/services/analytics ./services/analytics
 # Copy all workspace directories that exist
 COPY --from=monorepo-base /monorepo/packages ./packages
